@@ -1,8 +1,12 @@
 const { response, request } = require('express')
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json()) //needed for POST - allows use of request.body (undefined without it)
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
+
+morgan.token('postData', function (req, res) { return JSON.stringify(req.body) })
 
 const generateID = () => {
     return Math.round(Math.random() * 9999)
@@ -34,6 +38,7 @@ let persons = [
 //index request - hello world
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
+
 })
 
 app.get('/info', (request, response) => {
@@ -75,7 +80,7 @@ app.post('/api/persons', (request, response) => {
         })
     } else if (name) {
         return response.status(403).json({
-            error: 'name must be unique' + name[0]
+            error: 'name must be unique'
         })
     }
 
